@@ -1,4 +1,4 @@
-name: Build Gradle project
+name: Run ETL Time Travel
 
 on:
   workflow_dispatch:
@@ -13,5 +13,13 @@ jobs:
       uses: gradle/gradle-build-action@v2
     - name: Run build with Gradle Wrapper
       run: ./gradlew assemble
-    - name: Run build with Gradle Wrapper
-      run: ./gradlew assemble
+    - name: Cd to build libs
+      run: cd build/libs
+    - name: Download parquet file 2020
+      run: curl -L https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2021-01.parquet
+    - name: Download parquet file 2021
+      run: curl -L https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2021-01.parquet
+    - name: Download parquet file 2022
+      run: curl -L https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2022-01.parquet
+    - name: Run spark submit for time travel
+      run: spark-submit --class com.taxis.etl.travel_time.TravelTime --master local[0] taxisEtl.jar 100
