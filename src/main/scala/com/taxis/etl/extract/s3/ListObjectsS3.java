@@ -1,6 +1,7 @@
 package com.taxis.etl.extract.s3;
 
 import java.io.IOException;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
