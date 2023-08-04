@@ -1,5 +1,7 @@
 package com.taxis.etl.extract
 
+import com.taxis.etl.extract.Downloader.downloadFiles
+
 object Extract {
     def getFilenames(): Array[String] = {
         def folder: String = ReadFromEnv.readDownloadFolder()
@@ -7,9 +9,22 @@ object Extract {
     }
 
     def getDownloadedFilenames(): Array[String] = {
-        if(ReadFromEnv.readDownloadFiles()) {
-            Download.downloadFiles()
-        }
+        performDownload()
         getFilenames()
+    }
+
+    def performDownload(): Unit = {
+        if (ReadFromEnv.readDownloadFiles()) {
+            def baseUrl: Option[String] = ReadFromEnv.readBaseUrl()
+            if (baseUrl.isDefined) {
+                downloadFiles(new URLDownload(baseUrl.get))
+            } else {
+                throw new IllegalArgumentException("Base url was not defined")
+            }
+        }
+    }
+
+    def main(args: Array[String]): Unit = {
+        System.out.println(getDownloadedFilenames().mkString("Array(", ", ", ")"))
     }
 }

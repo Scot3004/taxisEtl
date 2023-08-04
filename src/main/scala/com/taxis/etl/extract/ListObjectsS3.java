@@ -12,7 +12,6 @@ import java.util.List;
 
 public class ListObjectsS3 {
     public static void listBucketObjects(S3Client s3, String bucketName ) {
-
         try {
             ListObjectsRequest listObjects = ListObjectsRequest
                     .builder()
@@ -37,8 +36,7 @@ public class ListObjectsS3 {
     private static long calKb(Long val) {
         return val/1024;
     }
-    public void download() {
-
+    public void downloadObject() {
 
     }
 
@@ -48,6 +46,8 @@ public class ListObjectsS3 {
                 .region(region)
                 .build()) {
             listBucketObjects(s3Client, "prft-etl-testing");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
