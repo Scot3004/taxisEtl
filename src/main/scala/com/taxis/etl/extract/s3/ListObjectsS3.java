@@ -1,7 +1,6 @@
-package com.taxis.etl.extract;
+package com.taxis.etl.extract.s3;
 
 import java.io.IOException;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
@@ -35,9 +34,6 @@ public class ListObjectsS3 {
     //convert bytes to kbs.
     private static long calKb(Long val) {
         return val/1024;
-    }
-    public void downloadObject() {
-
     }
 
     public static void main(String[] args) throws IOException {

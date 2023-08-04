@@ -16,8 +16,9 @@ object Extract {
     def performDownload(): Unit = {
         if (ReadFromEnv.readDownloadFiles()) {
             def baseUrl: Option[String] = ReadFromEnv.readBaseUrl()
+            def folder: String = ReadFromEnv.readDownloadFolder()
             if (baseUrl.isDefined) {
-                downloadFiles(new URLDownload(baseUrl.get))
+                downloadFiles(new URLDownload(baseUrl.get), folder)
             } else {
                 throw new IllegalArgumentException("Base url was not defined")
             }
