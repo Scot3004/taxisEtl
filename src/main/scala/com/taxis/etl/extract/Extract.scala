@@ -1,11 +1,10 @@
 package com.taxis.etl.extract
 
-import com.taxis.etl.extract.Downloader.downloadFiles
 import com.taxis.etl.extract.s3.DownloadS3Object
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path, Paths}
 
 object Extract {
   def getFilenames(): Array[String] = {
@@ -19,19 +18,23 @@ object Extract {
   }
 
   def performDownload(): Unit = {
-    if (ReadFromEnv.readDownloadFiles()) {
-      def baseUrl: Option[String] = ReadFromEnv.readBaseUrl()
-      def folder: String = ReadFromEnv.readDownloadFolder()
-      def filenames : Array[String] = ReadFromEnv.readTaxisETLFileName()
+    def folder: String = ReadFromEnv.readDownloadFolder()
+    def path = Paths.get(folder)
+    def filenames : Array[String] = ReadFromEnv.readTaxisETLFileName()
 
-      val s3Client = S3Client.builder.region(Region.US_EAST_2).build
+    if (!(Files.exists(path) && Files.isDirectory(path))) {
+      Files.createDirectory(path)
+    }
+    download(ReadFromEnv.readDownloadSource(), path).perform(filenames)
+  }
 
-      def path = Paths.get(folder)
-
-      if (!(Files.exists(path) && Files.isDirectory(path))) {
-        Files.createDirectory(path)
-      }
-      new DownloadS3Object(s3Client, "prft-etl-testing", path).perform(filenames)
+  def download(source: String, path: Path): IDownload = {
+    source match {
+      case "s3" => new DownloadS3Object(
+        S3Client.builder.region(Region.US_EAST_2).build, ReadFromEnv.readBucketName(), path
+      )
+      case "url" => new URLDownload(ReadFromEnv.readBaseUrl().get, path)
+      case _ => new NoDownload
     }
   }
 
