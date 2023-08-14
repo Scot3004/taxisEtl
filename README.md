@@ -120,7 +120,6 @@ Files from S3
 ```bash
 export TAXIS_ETL_FILES=yellow_tripdata_2020-01.parquet,yellow_tripdata_2021-01.parquet,yellow_tripdata_2022-01.parquet
 export TAXIS_ETL_DOWNLOAD_FOLDER=downloads
-export TAXIS_ETL_BASE_URL=https://d37ci6vzurychx.cloudfront.net/trip-data
 export TAXIS_ETL_DOWNLOAD_SOURCE=s3
 export TAXIS_ETL_BUCKET_NAME=s3-bucket
 ```
