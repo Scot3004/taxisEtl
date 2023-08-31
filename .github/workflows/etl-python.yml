@@ -1,0 +1,58 @@
+name: Run ETL Using Python
+
+on:
+  workflow_dispatch:
+    inputs:
+      archivos:
+        description: "Archivos a ser procesados"
+        default: "yellow_tripdata_2020-01.parquet,yellow_tripdata_2021-01.parquet,yellow_tripdata_2022-01.parquet"
+      class:
+        type: choice
+        description: Modulo python
+        required: true
+        options:
+          - src/taxis_etl_prft/DemoS3.py
+          - src/taxis_etl_prft/SimpleApp.py
+      hilos:
+        description: "Numero de hilos de procesador"
+        default: "1"
+
+env:
+  TAXIS_ETL_FILES: ${{ github.event.inputs.archivos }}
+  TAXIS_ETL_DOWNLOAD_FOLDER: downloads
+  TAXIS_ETL_DOWNLOAD_SOURCE: s3
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout project sources
+      uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: '17'
+    - uses: vemonet/setup-spark@v1
+      with:
+        spark-version: '3.4.1'
+        hadoop-version: '3'
+    - run: spark-submit --version
+    - name: Install python dependencies
+      run: pip install -e .
+    - name: Patch Spark s3a
+      run: echo "spark.driver.extraClassPath $HADOOP_HOME/share/hadoop/tools/lib/*:$HADOOP_HOME/share/hadoop/common/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/common/lib/woodstox-core-5.4.0.jar:$HADOOP_HOME/share/hadoop/common/lib/stax2-api-4.2.1.jar:$HADOOP_HOME/share/hadoop/common/lib/commons-configuration2-2.8.0.jar" >> $SPARK_HOME/conf/spark-defaults.conf
+    - run: mkdir ./downloads
+    - name: Run spark submit for ${{ github.event.inputs.class }}
+      run: spark-submit ${{ github.event.inputs.class }} --master local[${{ github.event.inputs.hilos }}]
+    - name: Archive ETL results
+      uses: actions/upload-artifact@v3
+      with:
+        name: results
+        path: results

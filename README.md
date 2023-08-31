@@ -139,3 +139,38 @@ If you use mac/linux/wsl, you run the following command
 ```bash
 echo "spark.driver.extraClassPath $HADOOP_HOME/share/hadoop/tools/lib/*:$HADOOP_HOME/share/hadoop/common/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/common/lib/woodstox-core-5.4.0.jar:$HADOOP_HOME/share/hadoop/common/lib/stax2-api-4.2.1.jar:$HADOOP_HOME/share/hadoop/common/lib/commons-configuration2-2.8.0.jar" >> $SPARK_HOME/conf/spark-defaults.conf
 ```
+
+### Java exception org.apache.hadoop.fs.s3a.auth.NoAuthWithAWSException
+
+
+If you see this exception in the logs when you run the spark submit command
+```
+Caused by: org.apache.hadoop.fs.s3a.auth.NoAuthWithAWSException: 
+No AWS Credentials provided by TemporaryAWSCredentialsProvider SimpleAWSCredentialsProvider EnvironmentVariableCredentialsProvider IAMInstanceCredentialsProvider 
+: com.amazonaws.SdkClientException: Unable to load AWS credentials from environment variables (AWS_ACCESS_KEY_ID (or AWS_ACCESS_KEY) and AWS_SECRET_KEY (or AWS_SECRET_ACCESS_KEY))
+```
+
+Do the configuration for aws credentials with aws cli
+
+> IMPORTANT is not enough for some reason the aws configure and requred to export the variables to the environment
+
+Export aws credentials (this can be done after aws configuration)
+
+```bash
+export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
+export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
+```
+
+# java.lang.NoSuchFieldError: JAVA_9
+if you see the exception line 
+
+```
+py4j.protocol.Py4JJavaError: An error occurred while calling None.org.apache.spark.api.java.JavaSparkContext.
+: java.lang.NoSuchFieldError: JAVA_9
+```
+
+Enable the java 11 from sdkman
+
+# ModuleNotFoundError: No module named 'dotenv'
+
+This appears when your environment has not installed the python deps see the section "Install python dependencies"
